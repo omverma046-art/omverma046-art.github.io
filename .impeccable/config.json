@@ -1,0 +1,80 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-31T16:08:12.110Z",
+        "reason": "user confirmed: asked for 'the purple and yellow colour' for this portfolio; flat colours, no gradients"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-31T16:08:12.520Z",
+        "reason": "Claude triage: tight leading is on large display type only; body text is 1.55"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-31T16:08:12.954Z",
+        "reason": "Claude triage: screenshots show sections inset by --gutter; the marquee and gallery bleed to the edge on purpose"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "styles.css"
+        ],
+        "createdAt": "2026-10-31T16:08:13.372Z",
+        "reason": "Claude triage: 3px rail is the experience timeline's scroll progress line, not a card accent"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-31T16:08:13.776Z",
+        "reason": "Claude triage: same timeline rail as styles.css, reported through the linked stylesheet"
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "styles.css"
+        ],
+        "createdAt": "2026-10-31T20:22:20.743Z",
+        "reason": "Claude triage: width/height on ::details-content is the only way to animate a native details book opening; user-triggered and limited to the shelf, whose page text has a fixed width so it does not reflow"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-31T20:22:21.389Z",
+        "reason": "Claude triage: remaining shadows are a 1px inset nav hairline and a 1px zero-blur edge on the progress bar, not glows; the blurred phone menu shadow was removed"
+      },
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          "resume.html"
+        ],
+        "createdAt": "2026-10-31T20:22:22.048Z",
+        "reason": "user confirmed: asked for purple and yellow; the resume uses the site's flat colours, no gradients"
+      }
+    ]
+  }
+}

@@ -1,0 +1,544 @@
+:root {
+  --night: #2a0f45; /* aubergine: warmer than a blue-violet, which reads as a stock purple */
+  --purple: #5e2a84; /* the poles on Om's play structures */
+  --yellow: #f0b429; /* marigold: deep enough that the lemon-yellow slides stand clear of it */
+  --lilac: #e7dcf5; /* light ground for the full-colour renders */
+  --milk: #f7f2fb;
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --section: clamp(4rem, 10vw, 9rem);
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  interpolate-size: allow-keywords; /* lets the stacked shelf animate to its text height */
+}
+
+@font-face {
+  font-family: "Anybody";
+  src: url("fonts/anybody.woff2") format("woff2");
+  font-weight: 400 900;
+  font-stretch: 50% 150%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Familjen Grotesk";
+  src: url("fonts/familjen-grotesk.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+html { scrollbar-color: var(--yellow) var(--night); }
+::selection { background: var(--yellow); color: var(--night); }
+.equipment ::selection, .other ::selection { background: var(--night); color: var(--yellow); }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--milk);
+  font: 400 clamp(1.0625rem, .98rem + .3vw, 1.1875rem)/1.55 "Familjen Grotesk", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; width: 100%; height: auto; }
+a { color: inherit; }
+figure { margin: 0; }
+:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+
+h1, h2 { font-family: "Anybody", "Arial Black", sans-serif; margin: 0; }
+/* Anybody's width axis carries the hierarchy: only the name runs at full width (150), then headings 110, sub-headings 100, spines 85 */
+h2 {
+  font-size: clamp(2.25rem, 5.6vw, 5.5rem);
+  font-weight: 800;
+  font-stretch: 110%;
+  line-height: 1.04;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+}
+h3 {
+  font: 700 clamp(1.125rem, 1.4vw, 1.375rem)/1.2 "Anybody", "Arial Black", sans-serif;
+  font-stretch: 100%;
+  margin: 0 0 .5rem;
+}
+p { margin: 0; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+.line-mask { padding-bottom: .12em; margin-bottom: -.12em; }
+
+.skip { position: fixed; left: -999px; }
+.skip:focus { left: 1rem; top: 1rem; background: var(--yellow); color: var(--night); padding: .5rem 1rem; z-index: 5; }
+
+/* Everything pressable gives way slightly under the finger */
+.brand, .menu-toggle, .top nav a, .pill { transition: scale .16s ease-out; }
+.brand:active, .menu-toggle:active, .top nav a:active, .pill:active { scale: .97; }
+
+.pill {
+  display: inline-block;
+  padding: .6rem 1.25rem;
+  border: 0;
+  border-radius: 2rem;
+  background: var(--yellow);
+  color: var(--night);
+  font: 600 1rem/1.2 "Familjen Grotesk", sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: scale .16s ease-out, translate .2s var(--ease);
+}
+.pill:focus-visible { outline-color: var(--yellow); }
+
+.curtain { display: none; }
+.js .curtain {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: var(--yellow);
+  animation: curtain-failsafe .01s 4s forwards; /* never strand the page if a script fails */
+}
+@keyframes curtain-failsafe { to { visibility: hidden; } }
+
+/* Stays when the nav hides; the dark edge keeps it visible over the yellow sections */
+.progress {
+  position: fixed;
+  z-index: 5;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--yellow);
+  box-shadow: 0 1px 0 var(--night);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+/* Hides on the way down, returns on the way up */
+.top {
+  position: fixed;
+  z-index: 4;
+  top: .75rem;
+  left: var(--gutter);
+  right: var(--gutter);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: .5rem 1.25rem;
+  border-radius: 2rem;
+  background: rgb(42 15 69 / .92); /* stays readable when it passes over the yellow sections */
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgb(247 242 251 / .16);
+  transition: transform .45s var(--ease);
+}
+.top.is-away:not(:focus-within) { transform: translateY(calc(-100% - 1rem)); }
+.brand { font-weight: 600; text-decoration: none; white-space: nowrap; }
+.menu-toggle { display: none; }
+.top nav { /* a popover on phones (see below), a plain row here */
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .1rem 1.25rem;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: none;
+  color: inherit;
+}
+.top nav a { position: relative; text-decoration: none; padding: .2rem 0; }
+.top nav a::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--yellow);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .3s var(--ease);
+}
+.top nav a:hover, .top nav a[aria-current], .brand:hover { color: var(--yellow); }
+.top nav a[aria-current]::after { transform: scaleX(1); }
+
+.hero { padding: clamp(5.5rem, 10vh, 7rem) var(--gutter) 0; }
+h1 {
+  font-size: calc((100vw - 2 * var(--gutter)) / 9.1); /* widest setting runs about 8.9em */
+  font-weight: 900;
+  font-stretch: 150%;
+  line-height: .95;
+  white-space: nowrap;
+  color: var(--yellow);
+}
+h1 .char {
+  display: inline-block;
+  font-variation-settings: "wdth" var(--w, 150), "wght" var(--g, 900);
+}
+.role {
+  margin-top: 1.25rem;
+  font: 700 clamp(1.375rem, 3vw, 2.5rem)/1.15 "Anybody", "Arial Black", sans-serif;
+  font-stretch: 100%;
+  text-wrap: balance;
+}
+.lede {
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+  line-height: 1.35;
+  max-width: 34em;
+  margin-top: .75rem;
+}
+.hero-set { max-width: 1240px; margin: .5rem auto 0; }
+
+.marquee {
+  position: relative;
+  z-index: 1;
+  overflow: clip;
+  padding: .9rem 0;
+  background: var(--yellow);
+  color: var(--night);
+}
+.marquee p {
+  width: max-content;
+  font: 800 clamp(1.5rem, 3.4vw, 3rem)/1.1 "Anybody", sans-serif;
+  font-stretch: 110%;
+  white-space: nowrap;
+}
+.marquee span { display: inline-block; margin-right: 2.5em; }
+
+.intro { max-width: 44rem; }
+.intro p { margin-top: 1rem; font-size: clamp(1.125rem, 1.4vw, 1.3125rem); max-width: 34em; }
+
+.parks { padding: var(--section) 0 0; }
+.plan-stage { padding: 0 var(--gutter); }
+.plan { margin: 2rem auto 0; }
+.plan-art { position: relative; }
+.plan-art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.plan-route, .plan-spot {
+  fill: none;
+  stroke: var(--yellow);
+  stroke-dasharray: 1000; /* paths use pathLength="1000", so offset 1000 is undrawn and 0 is drawn */
+  stroke-linejoin: round;
+}
+.plan-route { stroke-width: 7; }
+.plan-spot { stroke-width: 6; }
+@media (min-width: 761px) {
+  .plan-stage { padding: 0; }
+  .plan-stage .intro { margin-inline: var(--gutter); }
+  .plan { /* full width without negative margins, which throw off the pin's measurements */
+    height: 100svh;
+    margin: 2rem 0 0;
+    display: grid;
+    place-items: center;
+    overflow: clip;
+  }
+  .plan-art { width: min(96%, 92svh * 16 / 9); }
+}
+.parks-detail {
+  display: grid;
+  grid-template-columns: 2.4fr 1fr;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+  padding: var(--section) var(--gutter);
+}
+.sites ul { margin-bottom: 1.5rem; }
+.sites h3 { color: var(--yellow); }
+
+.equipment {
+  padding: var(--section) var(--gutter);
+  background: var(--lilac); /* the playset's own yellows would sink into the marigold */
+  color: var(--night);
+  overflow: clip;
+}
+.equipment h2 { font-size: clamp(1.75rem, 3.4vw, 3rem); font-stretch: 110%; }
+.stretch {
+  display: block;
+  font-size: calc((100vw - 2 * var(--gutter)) / 12.9); /* widest setting runs about 12.6em */
+  font-weight: 900;
+  line-height: 1.05;
+  white-space: nowrap;
+  font-variation-settings: "wdth" var(--w, 150), "wght" 900;
+}
+.stretch-rest { display: block; margin-top: .4rem; }
+.equipment-set { position: relative; max-width: 1240px; margin: 1.5rem auto; }
+.callouts svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.callout-line {
+  fill: none;
+  stroke: var(--night);
+  stroke-width: 3;
+  stroke-dasharray: 1000;
+}
+.callout {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  translate: var(--shift, 0); /* anchored to its line, so the label stays put at any width */
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.equipment p { max-width: 34em; margin-left: auto; font-size: clamp(1.125rem, 1.4vw, 1.3125rem); }
+
+.rooms { padding: var(--section) var(--gutter); background: var(--purple); }
+.track { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(.5rem, 1.2vw, 1rem); }
+.track .intro { grid-column: 1 / -1; margin-bottom: 2rem; }
+.frame { overflow: clip; border-radius: .5rem; }
+.frame img { height: 100%; object-fit: cover; }
+.frame button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.frame button:focus-visible { outline: 3px solid var(--yellow); outline-offset: -8px; }
+
+.lightbox {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.lightbox[open] {
+  display: grid;
+  place-items: center;
+}
+.lightbox::backdrop { background: rgb(42 15 69 / var(--veil, .95)); }
+.lightbox img {
+  width: auto;
+  max-width: min(94vw, 1600px);
+  max-height: 78dvh;
+  border-radius: .5rem;
+  touch-action: pan-y pinch-zoom; /* a sideways swipe moves to the next image */
+}
+.lightbox-close {
+  position: fixed;
+  top: 1rem;
+  right: var(--gutter);
+  z-index: 1;
+}
+.lightbox-steps {
+  position: fixed;
+  bottom: 1rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.lightbox-count { color: var(--milk); font-variant-numeric: tabular-nums; }
+.lightbox-status { /* for screen readers only: says what the new image shows */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Added by main.js on wide screens: the shelves slide past sideways */
+.rooms.is-sideways { height: 100svh; padding: 0; overflow: clip; display: flex; align-items: center; }
+.is-sideways .track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: 1.5rem;
+  padding: 0 var(--gutter);
+}
+.is-sideways .intro { flex: none; width: min(38rem, 42vw); margin: 0 3rem 0 0; }
+.is-sideways .frame { flex: none; height: 72svh; aspect-ratio: 16 / 10; }
+.is-sideways .frame img { width: 114%; max-width: none; }
+
+/* Same winding edge and path as Om's site plans */
+.plot { background: var(--purple); }
+.edge { display: block; width: 100%; height: clamp(60px, 9vw, 120px); margin-bottom: -1px; }
+.edge-fill { fill: var(--yellow); }
+.edge-line { fill: none; stroke: var(--night); stroke-width: 14px; vector-effect: non-scaling-stroke; }
+.other {
+  background: var(--yellow);
+  color: var(--night);
+  padding: 1.5rem var(--gutter) var(--section);
+}
+
+/* One open book at a time. The open page takes whatever the eight spines leave, so the shelf never changes width. */
+.shelf {
+  --spine: clamp(3rem, 5vw, 5rem);
+  --shelf-height: 22rem;
+  --page: calc(100cqw - 8 * (var(--spine) + 3px));
+  container-type: inline-size;
+  display: flex;
+  margin-top: 2.5rem;
+}
+.shelf-group { display: flex; flex-direction: column-reverse; justify-content: flex-end; }
+.shelf-group h3 { max-width: 12em; margin: .75rem 1rem 0 0; font: 600 1rem/1.3 "Familjen Grotesk", sans-serif; }
+.books {
+  display: flex;
+  align-items: flex-end;
+  min-height: calc(var(--shelf-height) + .5rem); /* every group's plank lines up with the open page's */
+  border-bottom: .5rem solid var(--night);
+}
+.book { display: flex; align-items: flex-end; margin-right: 3px; }
+.book summary {
+  display: flex;
+  align-items: center;
+  flex: none;
+  width: var(--spine);
+  min-height: var(--h);
+  padding: 1rem 0;
+  list-style: none;
+  writing-mode: vertical-rl;
+  border-radius: .25rem .25rem 0 0;
+  background: var(--spine-bg);
+  color: var(--spine-ink);
+  font: 800 clamp(1rem, 1.4vw, 1.25rem)/1.1 "Anybody", sans-serif;
+  font-stretch: 85%;
+  cursor: pointer;
+  transition: scale .16s ease-out, translate .25s var(--ease);
+}
+.book summary::-webkit-details-marker { display: none; }
+.book summary:active { scale: .98; }
+.book summary:focus-visible { outline-color: var(--spine-ink); outline-offset: -6px; }
+.shelf-group:nth-child(1) { --spine-bg: var(--night); --spine-ink: var(--yellow); }
+.shelf-group:nth-child(2) { --spine-bg: var(--purple); --spine-ink: var(--milk); }
+.shelf-group:nth-child(3) { --spine-bg: var(--milk); --spine-ink: var(--night); }
+.book::details-content {
+  width: 0;
+  overflow: clip;
+  transition: width .45s var(--ease), content-visibility .45s allow-discrete;
+}
+.book[open]::details-content { width: var(--page); }
+.page { /* laid out like a book's title page: title at the top, words at the foot */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: var(--page); /* fixed, so the text doesn't rewrap as the page opens */
+  height: var(--shelf-height);
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border-radius: 0 .5rem 0 0;
+  background: var(--milk);
+}
+.page-title {
+  font: 800 clamp(1.75rem, 3.6vw, 3.5rem)/1.04 "Anybody", sans-serif;
+  font-stretch: 110%;
+  text-wrap: balance;
+}
+.page-text {
+  max-width: 28em;
+  font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+@media (max-width: 900px) { /* too narrow for spines: the books lie flat in a pile instead */
+  .callouts { display: none; } /* the labels would sit on top of the playset */
+  .shelf { display: block; container-type: normal; }
+  .shelf-group { display: block; margin-bottom: 1.75rem; }
+  .shelf-group h3 { max-width: none; margin: 0 0 .5rem; }
+  .books { display: block; min-height: 0; border-bottom-width: .375rem; }
+  .book { display: block; margin: 0 0 2px; }
+  .book summary {
+    width: 100%;
+    min-height: 0;
+    padding: .9rem 1rem;
+    writing-mode: horizontal-tb;
+    border-radius: .25rem;
+  }
+  .book::details-content {
+    width: auto;
+    height: 0;
+    transition: height .35s var(--ease), content-visibility .35s allow-discrete;
+  }
+  .book[open]::details-content { width: auto; height: auto; }
+  .page { width: auto; height: auto; padding: 1rem; border-radius: 0; }
+  .page-title { display: none; } /* the book's name is right above it here */
+}
+
+.experience { padding-top: 0; }
+.background {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2.5rem clamp(2rem, 5vw, 5rem);
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+.background p + h3 { margin-top: 1.5rem; }
+.background strong { font-weight: 600; }
+.timeline { position: relative; padding-left: 1.5rem; margin-top: .75rem; }
+.timeline::before, .timeline::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: rgb(42 15 69 / .22);
+}
+.timeline::after {
+  background: var(--night);
+  transform: scaleY(var(--fill, 1));
+  transform-origin: top;
+}
+.timeline li + li { margin-top: 1rem; }
+
+.contact { min-height: 51svh; padding: var(--section) var(--gutter); } /* over half the screen, so the nav can mark it current at the end of the page */
+.contact h2 { max-width: 16em; }
+.wave .char {
+  display: inline-block;
+  font-variation-settings: "wdth" var(--w, 110), "wght" 800;
+}
+.mail {
+  display: inline-block;
+  margin: 2rem 0 1rem;
+  font: 700 clamp(1.15rem, 4.4vw, 3.75rem)/1.2 "Anybody", "Arial Black", sans-serif;
+  color: var(--yellow);
+  overflow-wrap: anywhere;
+  text-underline-offset: .18em;
+  text-decoration-thickness: .06em;
+}
+.mail:active { opacity: .8; }
+.contact-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 2rem; }
+.copy[hidden] { display: none; }
+.resume-link { margin-top: 1.5rem; background: var(--night); color: var(--yellow); }
+.resume-link:focus-visible { outline-color: var(--night); }
+
+@media (hover: hover) and (pointer: fine) {
+  .frame button { transition: scale .6s var(--ease); } /* on the button: GSAP owns the image's transform */
+  .frame button:hover { scale: 1.03; }
+  .book summary:hover { translate: 0 -.5rem; }
+  .pill:hover { translate: 0 -2px; }
+}
+
+@media (max-width: 760px) {
+  .menu-toggle {
+    display: block;
+    padding: .5rem .25rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .top nav {
+    display: none;
+    position: fixed;
+    inset: 4.25rem var(--gutter) auto;
+    width: auto;
+    padding: .75rem 1.25rem;
+    border-radius: 1.25rem;
+    background: var(--night);
+    box-shadow: inset 0 0 0 1px rgb(247 242 251 / .16);
+    transform-origin: top right;
+    transition: opacity .2s ease-out, scale .2s ease-out;
+  }
+  .top nav:popover-open { display: flex; flex-direction: column; }
+  @starting-style { .top nav:popover-open { opacity: 0; scale: .97; } }
+  .top nav a { padding: .6rem 0; font-size: 1.125rem; }
+  .top nav a::after { inset: auto auto .3rem 0; width: 2rem; }
+  .parks-detail, .background { grid-template-columns: 1fr; }
+  .track { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .curtain { display: none; }
+  .top, .top nav, .book summary, .book::details-content, .top nav a::after, .pill { transition: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .top { background: var(--night); backdrop-filter: none; }
+}
